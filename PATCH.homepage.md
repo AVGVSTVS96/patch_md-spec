@@ -2,7 +2,7 @@
 title: PATCH.md
 description: A file format for defining source patches that AI agents can apply and maintain.
 version: 0.1.0
-lastUpdated: 2026-06-23
+lastUpdated: 2026-06-25
 ---
 
 # PATCH.md
@@ -28,7 +28,7 @@ One patch is one `PATCH.md` file, kept by convention at `<patch-id>/PATCH.md`.
 
 ## Structure
 
-```
+````md
 ---
 id: <patch-id>
 summary: <short summary of the patch's intent>
@@ -38,24 +38,18 @@ lastUpdated: <yyyy-mm-dd>
 
 # <Patch Title>
 
-## Intent
-
 <What the patch does and why, in plain prose. This is what an agent reads
-to re-anchor an edit when the target file changes.>
+to re-anchor an edit when the target file changes. No prose headings are required.>
 
-## Patch Edits
-
-### <target/path>
-
-<one or more edits>
-
-### <target/path-2, split complex patches by target, path, type, or section>
-
-<one or more edits>
+```diff file=<target/path>
+@@ optional hint @@
+ context
++added line
 ```
+````
 
-A patch can list several targets, each under its own <target/patch> heading,
-and each target can hold more than one edit.
+A patch can list several targets by including several edit fences. The target file
+is declared on each edit fence with `file=<target/path>`.
 
 ## Edit forms
 
@@ -64,7 +58,7 @@ To start, we have added two recommended formats, use whichever you prefer:
 
 **Search/replace block form** shows the full before and after, anchored on the whole replaced region:
 
-```patch
+```patch file=dist/package-manager-cli.js
 <<<<<<< SEARCH
                     console.log(chalk.green(`Updated ${APP_NAME}`));
 =======
@@ -75,13 +69,14 @@ To start, we have added two recommended formats, use whichever you prefer:
 
 **Hunk form** is diff style and marks only the changed lines:
 
-```diff
+```diff file=dist/package-manager-cli.js
 @@ pi self_update success branch @@
                      console.log(chalk.green(`Updated ${APP_NAME}`));
 +                    try { (await import("node:child_process")).spawnSync("pi-patcher", ["reconcile"], { stdio: "inherit" }); } catch {}
 ```
 
 - `-` marks a removed line and `+` marks an added line.
+- The fence info string must include `file=<target/path>` so tools can apply the edit without interpreting prose. The value may be bare (`file=dist/foo.js`) or quoted (`file="path with spaces/foo.js"`). Fences without `file=` are examples/prose, not mechanical edits.
 - Optional: For additional context, or agent hints:
   - `@@ ... @@` header as a hint or more context.
   - `> note:` line directly before an edit for more context or a hint.
@@ -150,6 +145,8 @@ The `bootstrap-hook` patch from [pi-patcher](https://github.com/AVGVSTVS96/pi-pa
 ---
 id: bootstrap-hook
 summary: Re-run `pi-patcher reconcile` after pi finishes updating itself.
+version: 0.1.0
+lastUpdated: 2026-06-25
 ---
 
 # Bootstrap hook
@@ -171,7 +168,7 @@ change update behavior if `pi-patcher` is missing or fails to start.
 
 > note: end of the self-update branch, right after `Updated ${APP_NAME}`
 
-```diff
+```diff file=dist/package-manager-cli.js
 @@ pi self update success branch @@
                      console.log(chalk.green(`Updated ${APP_NAME}`));
 +                    try { (await import("node:child_process")).spawnSync("pi-patcher", ["reconcile"], { stdio: "inherit" }); } catch {}
