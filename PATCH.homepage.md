@@ -38,8 +38,10 @@ lastUpdated: <yyyy-mm-dd>
 
 # <Patch Title>
 
+## Intent
+
 <What the patch does and why, in plain prose. This is what an agent reads
-to re-anchor an edit when the target file changes. No prose headings are required.>
+to re-anchor an edit when the target file changes.>
 
 ```diff file=<target/path>
 @@ optional hint @@
@@ -48,8 +50,12 @@ to re-anchor an edit when the target file changes. No prose headings are require
 ```
 ````
 
+The `## Intent` section is the conventional place for the patch's purpose and
+re-anchoring guidance. It is the only heading convention defined by this spec.
+
 A patch can list several targets by including several edit fences. The target file
-is declared on each edit fence with `file=<target/path>`.
+is declared on each edit fence with `file=<target/path>`. Any headings used to
+organize edits are optional prose, not part of the patch format.
 
 ## Edit forms
 
@@ -161,10 +167,6 @@ installed patch is re-applied to the freshly updated install.
 The hook goes right after the existing `Updated ${APP_NAME}` success log in pi's
 self-update path. It must stay valid in pi's compiled ESM output, and it must not
 change update behavior if `pi-patcher` is missing or fails to start.
-
-## Patch Edits
-
-### dist/package-manager-cli.js
 
 > note: end of the self-update branch, right after `Updated ${APP_NAME}`
 
